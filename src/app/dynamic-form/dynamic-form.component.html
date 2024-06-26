@@ -1,0 +1,25 @@
+<div *ngFor="let section of uiLayout">
+  <div *ngIf="section.title">
+    <h3>{{ section.title }}</h3>
+  </div>
+  <div *ngFor="let field of section.fields">
+    <label *ngIf="field.type !== 'toggle'">
+      {{ field.label }}
+      <span *ngIf="field.validations?.required">*</span>
+    </label>
+    <input *ngIf="field.type === 'text' || field.type === 'email'"
+           [type]="field.type"
+           [ngModel]="formData[section.title][field.fieldKey]"
+           (ngModelChange)="formData[section.title][field.fieldKey] = $event"
+           [attr.placeholder]="field.label"
+           [required]="field.validations?.required">
+    <div *ngIf="field.type === 'textarea'">
+      <textarea
+        [ngModel]="formData[section.title][field.fieldKey]"
+        (ngModelChange)="formData[section.title][field.fieldKey] = $event"
+        [placeholder]="field.label"
+        [required]="field.validations?.required"></textarea>
+    </div>
+    <!-- Add other field types as needed -->
+  </div>
+</div>
