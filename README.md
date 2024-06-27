@@ -1,7 +1,3 @@
-Certainly! Here's a comprehensive README file template for your Angular Dynamic Form Handling project:
-
----
-
 # Angular Dynamic Form Handling
 
 ![Project Image](./src/assets/Project_screenshot.png)
