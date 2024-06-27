@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { FormLayout } from './dynamic-form/form-modal';
 
 @Component({
   selector: 'app-root',
@@ -7,7 +8,7 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'dynamic-form';
-  formLayout = [
+  formLayout:FormLayout = [
     {
       title: 'Personal Information',
       fields: [

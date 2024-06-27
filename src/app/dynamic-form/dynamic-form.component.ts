@@ -1,4 +1,6 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
+import { NgForm } from '@angular/forms';
+import { FormField, FormSection } from './form-modal';
 
 @Component({
   selector: 'app-dynamic-form',
@@ -6,28 +8,50 @@ import { Component, Input } from '@angular/core';
   styleUrls: ['./dynamic-form.component.scss']
 })
 
-export class DynamicFormComponent {
-  @Input() uiLayout: any; // Input property to receive form layout from parent component
-  formData: any = {}; // Object to hold form data
+export class DynamicFormComponent implements OnInit {
+  @Input() uiLayout: any;
+  formData: any = {};
 
-  constructor() {
+  constructor() {}
+
+  ngOnInit() {
     this.initializeFormData();
   }
 
   initializeFormData() {
-    if (this.uiLayout) {
-      this.uiLayout.forEach((section:any) => {
-        section.fields.forEach((field:any) => {
-          if (!this.formData[section.title]) {
-            this.formData[section.title] = {};
-          }
-          this.formData[section.title][field.fieldKey] = ''; // Initialize with empty string or appropriate default value
-        });
+    this.uiLayout.forEach((section:any) => {
+      this.formData[section.title] = {};
+      section.fields.forEach((field:any) => {
+        this.formData[section.title][field.fieldKey] = '';
       });
+    });
+  }
+
+  onSubmit(form: NgForm) {
+    if (form.valid) {
+      console.log('Form submitted:', this.formData);
+    } else {
+      console.log('Form is invalid');
     }
   }
 
-  onSubmit() {
-    console.log('Form Data:', this.formData); // Log form data on submission
+  isValidForm() {
+    let valid = true;
+    this.uiLayout.forEach((section:FormSection) => {
+      section.fields.forEach((field:FormField) => {
+        if (field.validations?.required && !this.formData[section.title][field.fieldKey]) {
+          valid = false;
+        }
+        if (field.type === 'email' && !this.isValidEmail(this.formData[section.title][field.fieldKey])) {
+          valid = false;
+        }
+      });
+    });
+    return valid;
+  }
+
+  isValidEmail(email: string) {
+    const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+    return emailPattern.test(email);
   }
 }
