@@ -1,39 +1,38 @@
-<form (ngSubmit)="onSubmit(formDirective)" #formDirective="ngForm" class="dynamic-form">
+<form [formGroup]="form" (ngSubmit)="onSubmit()" class="dynamic-form">
   <div *ngFor="let section of uiLayout">
-    <div *ngIf="section.title">
-      <h3>{{ section.title }}</h3>
-    </div>
-    <div *ngFor="let field of section.fields" class="form-group">
-      <label *ngIf="field.type !== 'toggle'">
+    <h3>{{ section.title }}</h3>
+    <div *ngFor="let field of section.fields">
+      <label [attr.for]="field.fieldKey">
         {{ field.label }}
-        <span *ngIf="field.validations?.required">*</span>
+        <span *ngIf="field.validations?.required" class="required-asterisk">*</span>
       </label>
-      <input *ngIf="field.type === 'text'"
+
+      <input *ngIf="field.type !== 'select' && field.type !== 'checkbox'"
              [type]="field.type"
-             [(ngModel)]="formData[section.title][field.fieldKey]"
-             [attr.placeholder]="field.label"
-             [required]="field.validations?.required"
-             [name]="field.fieldKey"
-             #fieldModel="ngModel"
-             [ngClass]="{'is-invalid': fieldModel.invalid && (fieldModel.dirty || fieldModel.touched || formDirective.submitted)}">
-      <input *ngIf="field.type === 'email'"
-             type="email"
-             [(ngModel)]="formData[section.title][field.fieldKey]"
-             [attr.placeholder]="field.label"
-             [required]="field.validations?.required"
-             [name]="field.fieldKey"
-             #fieldModel="ngModel"
-             [ngClass]="{'is-invalid': fieldModel.invalid && (fieldModel.dirty || fieldModel.touched || formDirective.submitted)}">
-      <div *ngIf="field.type === 'textarea'">
-        <textarea
-          [(ngModel)]="formData[section.title][field.fieldKey]"
-          [placeholder]="field.label"
-          [required]="field.validations?.required"
-          [name]="field.fieldKey"
-          #fieldModel="ngModel"
-          [ngClass]="{'is-invalid': fieldModel.invalid && (fieldModel.dirty || fieldModel.touched || formDirective.submitted)}"></textarea>
+             [formControlName]="field.fieldKey"
+             [id]="field.fieldKey"
+             [class.invalid]="form.get(field.fieldKey)?.invalid && (form.get(field.fieldKey)?.dirty || form.get(field.fieldKey)?.touched || submitted)">
+
+      <select *ngIf="field.type === 'select'" [formControlName]="field.fieldKey"
+              [class.invalid]="form.get(field.fieldKey)?.invalid && (form.get(field.fieldKey)?.dirty || form.get(field.fieldKey)?.touched || submitted)">
+        <option *ngFor="let option of field.options" [value]="option.value">{{ option.label }}</option>
+      </select>
+
+      <input *ngIf="field.type === 'checkbox'"
+             type="checkbox"
+             [formControlName]="field.fieldKey"
+             [id]="field.fieldKey">
+
+      <div *ngIf="form.get(field.fieldKey)?.invalid && (form.get(field.fieldKey)?.dirty || form.get(field.fieldKey)?.touched || submitted)"
+           class="invalid-feedback">
+        <div *ngIf="form.get(field.fieldKey)?.errors?.['required']">This field is required.</div>
+        <div *ngIf="form.get(field.fieldKey)?.errors?.['minlength']">Minimum length is {{ field.validations?.minLength }}.</div>
+        <div *ngIf="form.get(field.fieldKey)?.errors?.['maxlength']">Maximum length is {{ field.validations?.maxLength }}.</div>
+        <div *ngIf="form.get(field.fieldKey)?.errors?.['pattern']">Invalid format.</div>
+        <div *ngIf="form.get(field.fieldKey)?.errors?.['passwordMismatch']">Password does not match.</div>
+        <!-- Add other validation error messages here -->
       </div>
     </div>
   </div>
-  <button type="submit" [disabled]="formDirective.invalid" class="submit-button">Submit</button>
+  <button type="submit" class="submit-button">Submit</button>
 </form>
